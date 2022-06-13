@@ -28,7 +28,7 @@ func main() {
 
 func handleState() func(w http.ResponseWriter, r *http.Request) {
 	state := &State{
-		Counter: 5,
+		Counter: 0,
 	}
 	errState := &Error{}
 

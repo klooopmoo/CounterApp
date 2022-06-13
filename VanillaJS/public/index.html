@@ -21,8 +21,10 @@
     const counter = document.querySelector('#counter')
     const btns = document.querySelectorAll('.btn')
 
+
     let count = 0
     get()
+    put(count)
 
     btns.forEach((btn) => {
         btn.addEventListener('click', (e) => {
@@ -30,23 +32,47 @@
 
             if (styles.contains('increase')) {
                 count++
+                put(count)
+
             } else if (styles.contains('decrease')) {
                 count--
+                put(count)
             } else {
                 count = 0
+                put(count)
             }
 
             counter.textContent = count
         })
     })
     function get(){
-        fetch('http://localhost:8081/counter')
+        fetch('http://localhost:8081/state')
             .then(response =>{
                 return response.json();
             }).then(data =>{
             console.log(data);
             count = data.counter
             counter.textContent = count
+        })
+    }
+
+    function put(count ){
+        fetch('http://localhost:8081/state', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify({
+                counter : count
+            })
+        })
+        .then(response => {
+            return response.json();
+        }).then(data =>{
+            console.log(data);
+            console.log(data.counter)
+            count = data.counter
+
         })
     }
 
