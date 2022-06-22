@@ -10,6 +10,9 @@ import (
 type State struct {
 	Counter int `json:"counter"`
 }
+type Data struct {
+	Counter *int `json:"counter"`
+}
 
 type Error struct {
 	Message string `json:"message"`
@@ -28,11 +31,15 @@ func main() {
 
 func handleState() func(w http.ResponseWriter, r *http.Request) {
 	state := &State{
-		Counter: 0,
+		Counter: 5,
 	}
+
 	errState := &Error{}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "PUT, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
 		b, err := json.Marshal(*state)
 
 		if err != nil {
@@ -52,8 +59,9 @@ func handleState() func(w http.ResponseWriter, r *http.Request) {
 				fmt.Println(err)
 				return
 			}
-			err = json.Unmarshal(body, state)
-			if err != nil {
+			data := &Data{}
+			err = json.Unmarshal(body, data)
+			if err != nil || data.Counter == nil {
 				errState.Code = 400
 				errState.Message = "Input format must be type int"
 				errorMessage, _ := json.Marshal(*errState)
@@ -64,6 +72,7 @@ func handleState() func(w http.ResponseWriter, r *http.Request) {
 				}
 				return
 			}
+			state.Counter = *data.Counter
 
 			back, err := json.Marshal(*state)
 			if err != nil {
